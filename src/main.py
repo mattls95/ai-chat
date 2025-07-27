@@ -2,25 +2,19 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from model import init, generate_content, add_model_message
 
-
-load_dotenv()
-api_key = os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=api_key)
-
-#user_prompt = input("Enter prompt: ")
 user_prompt = "Why is the sky blue?"
-
 messages = [
     types.Content(role="user", parts=[types.Part(text=user_prompt)]),
 ]
 
-response = client.models.generate_content(
-    model='gemini-2.0-flash-001', 
-    contents=messages
-)
+client = init()
+response = generate_content(client, messages)
 
 for candidate in response.candidates:
-    print(candidate.content)
+    add_model_message(messages, candidate.content)
+    #print(candidate.content)
 
-#print(response.text)
+for message in messages:
+    print(message)
