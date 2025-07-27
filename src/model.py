@@ -9,7 +9,7 @@ def init():
     client = genai.Client(api_key=api_key)
     return client
 
-def add_model_message(messages, content ):
+def add_model_message(messages, content):
     messages.append(content)
 
 def generate_content(client, messages):
