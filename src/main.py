@@ -1,18 +1,35 @@
-import os
+import sys
 from google import genai
 from model import init, generate_content, add_model_message
+from user import generate_input, add_user_message
 
-user_prompt = "Why is the sky blue?"
-messages = [
-    types.Content(role="user", parts=[types.Part(text=user_prompt)]),
-]
+def main():
+    try:
+        messages = []
+        client = init()
+        generate_conversation(messages, client)
+    except Exception as e:
+       print(e)
+       sys.exit(0) 
 
-client = init()
-response = generate_content(client, messages)
+def generate_conversation(messages, client):
+    while True:
+        try:
+            content = generate_input()
+            add_user_message(messages, content)
 
-for candidate in response.candidates:
-    add_model_message(messages, candidate.content)
-    #print(candidate.content)
+            response = generate_content(client, messages)
 
-for message in messages:
-    print(message)
+            for candidate in response.candidates:
+                if candidate.content:
+                    add_model_message(messages, candidate.content)
+                    for part in candidate.content.parts:
+                        if part.text:
+                            print(f"AI: {part.text}")
+        except KeyboardInterrupt:
+            log_conversation(messages)
+            print("\nInterrupted by user. Exiting gracefully.")
+            sys.exit(0)
+
+if __name__ == "__main__":
+    main()
